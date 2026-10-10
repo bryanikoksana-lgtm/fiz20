@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Інтерактивна лабораторія: магнітне поле струму</title>
+<style>
+:root{--bg:#f3f7fb;--card:#fff;--ink:#183047;--blue:#1769aa;--teal:#087e8b;--orange:#f59e0b;--line:#d7e3ee}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eaf4ff,#f8fbff);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+header{background:#123d63;color:white;padding:24px 18px;text-align:center}header h1{margin:0 0 6px;font-size:clamp(1.4rem,3vw,2.2rem)}header p{margin:0;color:#d7eaff}
+main{max-width:1100px;margin:22px auto;padding:0 14px 40px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+button{border:0;border-radius:12px;padding:11px 15px;background:#e2edf7;color:#17476b;font-weight:700;cursor:pointer;font-size:15px}
+button:hover{filter:brightness(.97)}button.active,button.primary{background:var(--blue);color:white}
+.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:15px;box-shadow:0 5px 18px #1830470c}
+h2{margin:0 0 8px;font-size:1.35rem}h3{margin:10px 0 5px}.lead{margin-top:0;color:#4d6579}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:16px;align-items:start}
+canvas{display:block;width:100%;height:auto;border:1px solid #dce8f2;border-radius:14px;background:#fbfdff}
+.controls{display:grid;gap:12px}.control{background:#f5f9fc;border-radius:12px;padding:12px}.control label{font-weight:650;display:block;margin-bottom:5px}input[type=range]{width:100%;accent-color:var(--blue)}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.note{padding:12px 14px;background:#eaf6ff;border-left:4px solid #2993d1;border-radius:8px}.rule{background:#fff7e6;border-left:4px solid var(--orange);padding:12px;border-radius:8px}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;background:#e4f5ef;color:#12654e;font-size:.85rem;font-weight:700}
+.quiz-q{padding:12px;border:1px solid var(--line);border-radius:12px;margin:12px 0}.quiz-q label{display:block;padding:5px;cursor:pointer}.feedback{font-weight:700;margin-top:10px}
+footer{text-align:center;color:#5c7182;font-size:.9rem;padding:15px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.card{padding:14px}}
+</style>
+</head>
+<body>
+<header><h1>🧲 Інтерактивна лабораторія магнетизму</h1><p>Магнітне поле прямого провідника та котушки зі струмом</p></header>
+<main>
+<div class="tabs" role="tablist">
+<button class="active" data-tab="wire">1. Прямий провідник</button>
+<button data-tab="hand">2. Правило руки й свердлика</button>
+<button data-tab="coil">3. Котушка зі струмом</button>
+<button data-tab="quiz">4. Перевір себе</button>
+</div>
+<section id="wire" class="panel active">
+<div class="card"><h2>Дослід 1. Магнітне поле прямого провідника</h2><p class="lead">Увімкни струм, зміни його напрям і спостерігай за напрямом магнітного поля навколо провідника.</p>
+<div class="layout"><canvas id="wireCanvas" width="660" height="420" aria-label="Схема прямого провідника та магнітного поля"></canvas>
+<div class="controls">
+<div class="control"><label>Сила струму: <span id="currentLabel">1,0</span> умов. од.</label><input id="current" type="range" min="0" max="3" step=".5" value="1"></div>
+<div class="control"><label>Напрям струму</label><div class="row"><button id="direction" class="primary">⬆ Струм угору</button><button id="toggleLines">Приховати лінії</button></div></div>
+<div class="note" id="wireObservation">Струм увімкнений. Магнітне поле має вигляд концентричних кіл навколо провідника.</div>
+<div class="rule"><b>Правило правої руки:</b> охопи провідник правою рукою так, щоб великий палець указував напрям струму. Напрям зігнутих пальців показує напрям магнітних ліній.</div>
+</div></div></div>
+</section>
+<section id="hand" class="panel">
+<div class="card"><h2>Дослід 2. Правило правої руки та правило свердлика</h2><p class="lead">Перемикай напрям струму й порівнюй, куди спрямоване магнітне поле.</p>
+<div class="layout"><canvas id="handCanvas" width="660" height="420"></canvas><div class="controls">
+<div class="control"><label>Напрям струму в провіднику</label><div class="row"><button id="handUp" class="primary">⬆ Угору</button><button id="handDown">⬇ Унизу</button></div></div>
+<div class="note" id="handResult">Якщо струм спрямований угору, магнітні лінії обходять провідник у напрямі, який визначає права рука.</div>
+<div class="rule"><b>Правило свердлика:</b> якщо поступальний рух свердлика збігається з напрямом струму, напрям обертання ручки показує напрям магнітних ліній.</div>
+<p>На схемі: <b>⊙</b> — напрям до спостерігача; <b>⊗</b> — напрям від спостерігача.</p>
+</div></div></div>
+</section>
+<section id="coil" class="panel">
+<div class="card"><h2>Дослід 3. Магнітне поле котушки зі струмом</h2><p class="lead">Зміни напрям струму або кількість витків. Котушка поводиться подібно до постійного магніту.</p>
+<div class="layout"><canvas id="coilCanvas" width="660" height="420"></canvas><div class="controls">
+<div class="control"><label>Кількість витків: <span id="turnLabel">5</span></label><input id="turns" type="range" min="3" max="9" step="1" value="5"></div>
+<div class="control"><label>Напрям струму</label><div class="row"><button id="coilDir" class="primary">🔁 Змінити напрям</button><button id="coilLines">Приховати лінії</button></div></div>
+<div class="note" id="coilObservation">Один кінець котушки є північним полюсом N, інший — південним S. При зміні напряму струму полюси міняються місцями.</div>
+<div class="rule"><b>Правило правої руки для котушки:</b> обхопи котушку правою рукою так, щоб пальці збігалися з напрямом струму у витках. Відставлений великий палець указує на північний полюс N.</div>
+</div></div></div>
+</section>
+<section id="quiz" class="panel"><div class="card"><h2>Перевір себе</h2><p class="lead">Обери одну відповідь у кожному запитанні й натисни «Перевірити».</p>
+<form id="quizForm">
+<div class="quiz-q"><b>1. Яку форму мають магнітні лінії навколо прямого провідника зі струмом?</b>
+<label><input type="radio" name="q1" value="a"> Прямі паралельні лінії</label><label><input type="radio" name="q1" value="b"> Концентричні кола</label><label><input type="radio" name="q1" value="c"> Лише одна лінія</label></div>
+<div class="quiz-q"><b>2. Що показує великий палець правої руки для прямого провідника?</b>
+<label><input type="radio" name="q2" value="a"> Напрям струму</label><label><input type="radio" name="q2" value="b"> Силу струму в амперах</label><label><input type="radio" name="q2" value="c"> Опір провідника</label></div>
+<div class="quiz-q"><b>3. Що відбувається з напрямом магнітного поля, якщо змінити напрям струму?</b>
+<label><input type="radio" name="q3" value="a"> Він не змінюється</label><label><input type="radio" name="q3" value="b"> Магнітне поле зникає назавжди</label><label><input type="radio" name="q3" value="c"> Напрям поля змінюється на протилежний</label></div>
+<div class="quiz-q"><b>4. На що схожа котушка зі струмом?</b>
+<label><input type="radio" name="q4" value="a"> На постійний магніт із полюсами N і S</label><label><input type="radio" name="q4" value="b"> На джерело світла</label><label><input type="radio" name="q4" value="c"> На ізолятор без магнітного поля</label></div>
+<div class="quiz-q"><b>5. Що показує великий палець правої руки для котушки?</b>
+<label><input type="radio" name="q5" value="a"> Південний полюс S</label><label><input type="radio" name="q5" value="b"> Північний полюс N</label><label><input type="radio" name="q5" value="c"> Середину котушки</label></div>
+<div class="row"><button class="primary" type="submit">Перевірити відповіді</button><button type="button" id="resetQuiz">Спробувати ще раз</button></div><div id="quizFeedback" class="feedback" aria-live="polite"></div>
+</form></div></section>
+<footer>Навчальна модель. Стрілки та силові лінії схематичні; модель призначена для якісного дослідження явищ.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let upward=true, lines=true, coilForward=true, coilLines=true;
+function arrow(ctx,x1,y1,x2,y2,color='#1769aa',w=3){ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();let a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-11*Math.cos(a-.45),y2-11*Math.sin(a-.45));ctx.lineTo(x2-11*Math.cos(a+.45),y2-11*Math.sin(a+.45));ctx.closePath();ctx.fill()}
+function label(ctx,t,x,y,size=17,color='#183047'){ctx.fillStyle=color;ctx.font=`700 ${size}px system-ui`;ctx.fillText(t,x,y)}
+function drawWire(canvasId, show=true, isUp=true, strength=1, mode='wire'){
+ const c=$(canvasId),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#fbfdff';ctx.fillRect(0,0,w,h);
+ if(mode==='wire'||mode==='hand'){
+  const cx=330,cy=205;
+  if(show){for(let r=38;r<=Math.min(165,48+strength*39);r+=28){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#68a8d8';ctx.lineWidth=2;ctx.setLineDash([7,5]);ctx.stroke();ctx.setLineDash([]);
+   let a=isUp?Math.PI*.18:-Math.PI*.82;let x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);let tangent=isUp?1:-1;arrow(ctx,x-7*Math.sin(a)*tangent,y+7*Math.cos(a)*tangent,x+8*Math.sin(a)*tangent,y-8*Math.cos(a)*tangent,'#1769aa',2);
+  }}
+  ctx.strokeStyle='#e6a23c';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(cx,70);ctx.lineTo(cx,340);ctx.stroke();
+  ctx.strokeStyle='#8b5b18';ctx.lineWidth=2;ctx.stroke();
+  arrow(ctx,cx,isUp?310:110,cx,isUp?105:315,'#b45309',4);
+  label(ctx,'Провідник',cx+22,65,16);label(ctx,isUp?'I ↑':'I ↓',cx+22,cy,20,'#b45309');
+  label(ctx,'Вигляд поля зверху:',25,35,16);
+  ctx.beginPath();ctx.arc(85,86,22,0,Math.PI*2);ctx.strokeStyle='#1769aa';ctx.lineWidth=2;ctx.stroke();
+  label(ctx,isUp?'⊙':'⊗',74,94,24,'#1769aa');
+  ctx.fillStyle='#536d82';ctx.font='14px system-ui';ctx.fillText(isUp?'умовний напрям поля':'напрям поля змінено',25,130);
+ }else{
+  // coil
+  const cx=330,cy=205, turns=+$('turns').value;
+  if(show){ctx.strokeStyle='#8ab9dc';ctx.lineWidth=2;ctx.setLineDash([7,5]);
+   ctx.beginPath();ctx.ellipse(cx,cy,260,100,0,Math.PI,Math.PI*2);ctx.stroke();
+   ctx.beginPath();ctx.ellipse(cx,cy,260,100,0,0,Math.PI);ctx.stroke();ctx.setLineDash([]);
+   arrow(ctx,90,205,165,205,'#1769aa',3);arrow(ctx,495,205,570,205,'#1769aa',3);
+   arrow(ctx,200,130,260,115,'#1769aa',2);arrow(ctx,400,115,460,130,'#1769aa',2);
+  }
+  ctx.strokeStyle='#b96a22';ctx.lineWidth=5;
+  for(let i=0;i<turns;i++){let x=180+i*(300/(turns-1));ctx.beginPath();ctx.ellipse(x,cy,15,76,0,0,Math.PI*2);ctx.stroke()}
+  ctx.strokeStyle='#77502d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(165,cy-76);ctx.lineTo(495,cy-76);ctx.moveTo(165,cy+76);ctx.lineTo(495,cy+76);ctx.stroke();
+  let north=coilForward?'right':'left';label(ctx,north==='right'?'N':'S',north==='right'?535:100,cy+8,30,north==='right'?'#1769aa':'#d94841');label(ctx,north==='right'?'S':'N',north==='right'?100:535,cy+8,30,north==='right'?'#d94841':'#1769aa');
+  label(ctx,coilForward?'I →':'I ←',285,cy+120,20,'#b45309');label(ctx,'Котушка зі струмом',230,55,18);
+ }
+}
+function updateWire(){let s=+$('current').value;$('currentLabel').textContent=s.toFixed(1).replace('.',',');drawWire('wireCanvas',lines,upward,s);drawWire('handCanvas',true,upward,s,'hand');$('wireObservation').textContent=s===0?'Струм вимкнений: у цій моделі поле провідника не показується.':'Струм '+(upward?'спрямований угору':'спрямований униз')+'. Магнітні лінії — концентричні кола; зміна напряму струму змінює напрям поля.';$('handResult').textContent=upward?'Струм угору: напрям магнітного поля визначається правилом правої руки.':'Струм униз: напрям магнітного поля протилежний порівняно зі струмом угору.'}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===b.dataset.tab));}));
+$('current').addEventListener('input',updateWire);
+$('direction').addEventListener('click',()=>{upward=!upward;$('direction').textContent=upward?'⬆ Струм угору':'⬇ Струм униз';updateWire()});
+$('toggleLines').addEventListener('click',()=>{lines=!lines;$('toggleLines').textContent=lines?'Приховати лінії':'Показати лінії';updateWire()});
+$('handUp').addEventListener('click',()=>{upward=true;$('handUp').classList.add('primary');$('handDown').classList.remove('primary');updateWire()});
+$('handDown').addEventListener('click',()=>{upward=false;$('handDown').classList.add('primary');$('handUp').classList.remove('primary');updateWire()});
+function updateCoil(){$('turnLabel').textContent=$('turns').value;drawWire('coilCanvas',coilLines,true,1,'coil');$('coilObservation').textContent='Кількість витків: '+$('turns').value+'. Полюс N розташований '+(coilForward?'праворуч':'ліворуч')+'. При зміні напряму струму полюси котушки міняються місцями.'}
+$('turns').addEventListener('input',updateCoil);$('coilDir').addEventListener('click',()=>{coilForward=!coilForward;updateCoil()});$('coilLines').addEventListener('click',()=>{coilLines=!coilLines;$('coilLines').textContent=coilLines?'Приховати лінії':'Показати лінії';updateCoil()});
+$('quizForm').addEventListener('submit',e=>{e.preventDefault();const answers={q1:'b',q2:'a',q3:'c',q4:'a',q5:'b'};let score=0;for(const [q,a] of Object.entries(answers)){if(new FormData(e.target).get(q)===a)score++}const f=$('quizFeedback');f.textContent=`Результат: ${score} із 5. `+(score===5?'Чудово! Ти добре засвоїв(ла) правила.':score>=3?'Непогано! Переглянь досліди й спробуй ще раз.':'Повернись до схем, уважно прочитай правила та спробуй знову.');f.style.color=score>=4?'#087e55':'#a64b00'});
+$('resetQuiz').addEventListener('click',()=>{$('quizForm').reset();$('quizFeedback').textContent=''});
+updateWire();updateCoil();
+</script>
+</body></html>
